@@ -14,17 +14,22 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@next/font": "^14.2.15",
+    "@auth/core": "^0.41.1",
+    "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^5.9.1",
     "@supabase/supabase-js": "^2.39.7",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.3.1",
-    "next": "^14.1.1-canary.73",
+    "lucide-react": "^0.563.0",
+    "next": "^16.1.6",
+    "next-auth": "^5.0.0-beta.30",
+    "pg": "^8.18.0",
     "react": "^18",
     "react-dom": "^18",
     "sharp": "^0.33.2"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
@@ -34,7 +39,7 @@
     "eslint-config-next": "^14.1.1-canary.73",
     "postcss": "^8.5.6",
     "prisma": "^5.9.1",
-    "tailwindcss": "^4.1.18",
+    "tailwindcss": "^3.4.19",
     "tsx": "^4.7.0",
     "typescript": "^5"
   },

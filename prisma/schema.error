@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("AFFILIATE") // ADMIN, AFFILIATE
+  accounts      Account[]
+  sessions      Session[]
+  affiliateLinks AffiliateLink[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// NextAuth models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Product model (extend existing products)
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  commission  Decimal   @db.Decimal(5, 2) // commission percentage
+  imageUrl    String?
+  category    String?
+  isActive    Boolean   @default(true)
+  
+  // Relations
+  affiliateLinks AffiliateLink[]
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Affiliate Link Tracking
+model AffiliateLink {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  code      String   @unique
+  clicks    Int      @default(0)
+  sales     Int      @default(0)
+  earnings  Decimal  @db.Decimal(10, 2) @default(0)
+  
+  // Relations
+  product Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  @@unique([productId, userId])
+}
+
+// Sales/Commission Tracking
+model Sale {
+  id              String   @id @default(cuid())
+  affiliateLinkId String
+  amount          Decimal  @db.Decimal(10, 2)
+  commission      Decimal  @db.Decimal(10, 2)
+  status          String   @default("PENDING") // PENDING, PAID, CANCELLED
+  
+  // Relations
+  affiliateLink AffiliateLink @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
