@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.VarChar(255)
+  sku         String?  @unique @db.VarChar(100)
+  name        String   @db.VarChar(255)
+  slug        String   @unique @db.VarChar(255)
+  description String?  @db.Text
+  shortDescription String? @map("short_description") @db.Text
+  
+  productType String   @default("OWN_PRODUCT") @map("product_type") @db.VarChar(50)
+  basePrice   Decimal  @map("base_price") @db.Decimal(10, 2)
+  salePrice   Decimal? @map("sale_price") @db.Decimal(10, 2)
+  isOnSale    Boolean  @default(false) @map("is_on_sale")
+  currency    String   @default("USD") @db.VarChar(10)
+  
+  category    String?  @db.VarChar(100)
+  imageUrl    String?  @map("image_url") @db.Text
+  downloadUrl String?  @map("download_url") @db.Text
+  affiliateUrl String? @map("affiliate_url") @db.Text
+  tutorialUrl String?  @map("tutorial_url") @db.Text
+  reviewVideoUrl String? @map("review_video_url") @db.Text
+  
+  tags        String[] @db.Text
+  views       Int      @default(0)
+  clicks      Int      @default(0)
+  sales       Int      @default(0)
+  rating      Decimal? @default(0) @db.Decimal(3, 2)
+  reviewCount Int      @default(0) @map("review_count")
+  
+  isActive    Boolean  @default(true) @map("is_active")
+  isFeatured  Boolean  @default(false) @map("is_featured")
+  isDigital   Boolean  @default(true) @map("is_digital")
+  
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  
+  @@map("products")
+  @@index([slug])
+  @@index([category])
+  @@index([isActive])
+  @@index([isFeatured])
+}
+
+model Category {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.VarChar(255)
+  name        String   @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(50)
+  color       String?  @default("#3B82F6") @db.VarChar(20)
+  parentId    String?  @map("parent_id") @db.VarChar(255)
+  isActive    Boolean  @default(true) @map("is_active")
+  
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  
+  @@map("categories")
+  @@index([slug])
+}
