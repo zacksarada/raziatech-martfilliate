@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+*.log
+*.md
+*.txt
+test*
+*.backup
+.DS_Store
+.env*.local
