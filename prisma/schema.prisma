@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String  @id @default(cuid())
+  email           String  @unique
+  name            String?
+  password        String?
+  role            String  @default("BUYER")  // Changed from enum to String
+  affiliateCode   String? @unique
+  walletBalance   Float   @default(0)
+  
+  orders          Order[]
+  affiliateClicks AffiliateClick[]
+  conversions     AffiliateConversion[]
+  createdContent  Content[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([email])
+}
+
+model Product {
+  id                 String  @id @default(cuid())
+  name               String
+  slug               String  @unique
+  category           String  // Changed from enum to String
+  type               String  // Changed from enum to String
+  description        String?
+  price              Float
+  discountPrice      Float?
+  promoCode          String?
+  affiliateLink      String?
+  commissionRate     Float   @default(0.3)
+  features           String  // Changed from String[] to String (JSON string)
+  requirements       String  // Changed from String[] to String (JSON string)
+  tutorialLink       String?
+  reviewYoutubeLink  String?
+  downloadLink       String?
+  demoLink           String?
+  coverImage         String
+  gallery            String  // Changed from String[] to String (JSON string)
+  tags               String  // Changed from String[] to String (JSON string)
+  isActive           Boolean @default(true)
+  
+  orders             OrderItem[]
+  affiliateClicks    AffiliateClick[]
+  conversions        AffiliateConversion[]
+  content            Content[]
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  salesCount         Int      @default(0)
+  affiliateClicksCount Int    @default(0)
+  views              Int      @default(0)
+
+  @@index([category])
+  @@index([isActive])
+}
+
+model Order {
+  id              String  @id @default(cuid())
+  userId          String?
+  user            User?   @relation(fields: [userId], references: [id])
+  totalAmount     Float
+  status          String  @default("pending")  // Changed from enum to String
+  paymentMethod   String?
+  transactionId   String?
+  
+  items           OrderItem[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id])
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  quantity    Int     @default(1)
+  price       Float
+  commission  Float?
+  affiliateId String?
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model AffiliateClick {
+  id          String   @id @default(cuid())
+  affiliateId String
+  affiliate   User     @relation(fields: [affiliateId], references: [id])
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  clickDate   DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+  referrer    String?
+  converted   Boolean  @default(false)
+
+  @@index([affiliateId])
+  @@index([productId])
+  @@index([clickDate])
+}
+
+model AffiliateConversion {
+  id               String   @id @default(cuid())
+  clickId          String?  @unique
+  affiliateId      String
+  affiliate        User     @relation(fields: [affiliateId], references: [id])
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id])
+  orderItemId      String?  @unique
+  amount           Float
+  commissionRate   Float
+  commissionEarned Float
+  status           String   @default("pending")  // Changed from enum to String
+  conversionDate   DateTime @default(now())
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([affiliateId])
+  @@index([productId])
+  @@index([status])
+}
+
+model Content {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        String
+  platform    String
+  url         String
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  status      String   @default("draft")  // Changed from enum to String
+  publishedAt DateTime?
+  
+  analytics   SocialMediaAnalytic[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdById])
+  @@index([productId])
+  @@index([status])
+}
+
+model SocialMediaAnalytic {
+  id          String   @id @default(cuid())
+  contentId   String
+  content     Content  @relation(fields: [contentId], references: [id])
+  views       Int      @default(0)
+  likes       Int      @default(0)
+  shares      Int      @default(0)
+  comments    Int      @default(0)
+  clicks      Int      @default(0)
+  date        DateTime @default(now())
+  
+  createdAt   DateTime @default(now())
+
+  @@index([contentId])
+  @@index([date])
+}

@@ -1,8 +1,0 @@
-// Minimal auth config for build
-export const authOptions = {
-  providers: [],
-  session: { strategy: "jwt" },
-  pages: { signIn: "/auth/signin" },
-  secret: "build-temp-secret-123",
-  debug: false
-}
