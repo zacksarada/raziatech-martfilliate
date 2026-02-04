@@ -44,6 +44,7 @@ const authOptions = {
           return null
         }
 
+        // Check existing user
         const user = users.find(u => u.email === credentials.email)
         
         if (user && user.password === credentials.password) {
@@ -56,7 +57,7 @@ const authOptions = {
           }
         }
 
-        // New user
+        // New user registration
         if (credentials.name) {
           const newUser = {
             id: (users.length + 1).toString(),
@@ -73,12 +74,16 @@ const authOptions = {
       }
     })
   ],
-  secret: process.env.NEXTAUTH_SECRET || "dev-secret-change-in-production",
+  secret: process.env.NEXTAUTH_SECRET || "development-secret-key-change-this",
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
     signIn: "/auth/signin",
+    signOut: "/auth/signin",
+    error: "/auth/error",
+    newUser: "/auth/signup"
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -100,18 +105,18 @@ const authOptions = {
   }
 }
 
-// SIMPLE EXPORT - Ini yang bekerja untuk Next.js 14
+// Export untuk App Router
 const handler = NextAuth(authOptions)
 
-// Export untuk App Router API route
 export { handler as GET, handler as POST }
 
-// Export untuk server components - cara SIMPLE
-export const getServerSession = async () => {
-  return { user: null } // Simple mock untuk build
-}
-
-// Simple exports
-export const auth = handler
+// Export untuk server components
+export const authConfig = authOptions
+export const auth = handler.auth
 export const signIn = handler.signIn
 export const signOut = handler.signOut
+
+// Helper for getServerSession
+export async function getServerSession() {
+  return await handler.auth()
+}

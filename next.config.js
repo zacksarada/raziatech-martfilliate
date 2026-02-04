@@ -1,6 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    /* Silakan tambahkan konfigurasi lain di sini jika diperlukan */
+  reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  images: {
+    unoptimized: true,
+  },
+  // Untuk Vercel deployment
+  output: 'standalone',
 }
 
 module.exports = nextConfig

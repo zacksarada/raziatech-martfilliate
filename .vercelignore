@@ -1,0 +1,36 @@
+# Ignore development files
+*.log
+*.backup
+node_modules
+.next
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.DS_Store
+*.pem
+
+# Ignore test files
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+
+# Ignore documentation
+README.md
+LICENSE
+*.txt
+*.md
+
+# Ignore IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Ignore backup files
+backup/
+components_backup/
+lib_backup/
+app_backup_phase2/
